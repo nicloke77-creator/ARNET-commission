@@ -166,7 +166,7 @@ else:
         ["Offnet", "Onnet"],
         help=(
             "Offnet = resources sourced from external or third-party network.\n"
-            "Onnet = resources on ARNET own network or directly controlled network."
+            "Onnet = resources delivered through ARNET own network or directly controlled network."
         ),
     )
 
@@ -189,35 +189,37 @@ else:
     )
 
     first_month_gp = first_month_revenue - first_month_cost
-    first_month_annual_gp = first_month_gp * 12
+    annualised_first_month_gp = first_month_gp * 12
+
+    sales_amount = annualised_first_month_gp * 0.50
+    support_amount = annualised_first_month_gp * 0.10
+    total_commission = sales_amount + support_amount
 
     st.markdown("### Fiber Lease Result")
     c1, c2 = st.columns(2)
     c1.metric("First Month GP", f"{money(first_month_gp)} {currency}")
-    c2.metric("First Month Annual GP", f"{money(first_month_annual_gp)} {currency}")
+    c2.metric("Annualised First Month GP", f"{money(annualised_first_month_gp)} {currency}")
 
     st.write(f"**Project Name:** {project_name if project_name else '-'}")
-
-    sales_amount = first_month_annual_gp * 0.50
-    support_amount = first_month_annual_gp * 0.10
+    st.write(f"**Total Sales Commission:** {money(sales_amount)} {currency}")
+    st.write(f"**Total Support Team Commission:** {money(support_amount)} {currency}")
+    st.write(f"**Total Commission Payout:** {money(total_commission)} {currency}")
 
     if lease_type == "Offnet":
-        split_df = pd.DataFrame(
-            [
-                ["Sales team", "50% of First Month Annual GP", sales_amount],
-                ["Procurement team + PM + Presales team", "10% of First Month Annual GP", support_amount],
-            ],
-            columns=["Team / Group", "Rule", f"Amount ({currency})"],
-        )
+        support_group = "Procurement team + PM + Presales team"
     else:
-        split_df = pd.DataFrame(
-            [
-                ["Sales team", "50% of First Month Annual GP", sales_amount],
-                ["PM + Presales team + Design team", "10% of First Month Annual GP", support_amount],
-            ],
-            columns=["Team / Group", "Rule", f"Amount ({currency})"],
-        )
+        support_group = "PM + Presales team + Design team"
 
+    split_df = pd.DataFrame(
+        [
+            ["Sales team", "50% of Annualised First Month GP", sales_amount],
+            [support_group, "10% of Annualised First Month GP", support_amount],
+        ],
+        columns=["Team / Group", "Rule", f"Amount ({currency})"],
+    )
     st.dataframe(split_df, use_container_width=True, hide_index=True)
 
-    st.info("This Fiber Lease version shows group-level allocation. You can later split PM, Presales, Design, or Procurement into fixed percentages if needed.")
+    st.info(
+        "Fiber Lease commission is based on annualised first month GP. "
+        "Sales receives 50%, and the support team grouping receives 10%."
+    )
