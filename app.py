@@ -96,7 +96,7 @@ elif commission_type == "IRU Arrangement":
     project_name = st.text_input("Project Name")
     years = st.slider("IRU Term (Years)", min_value=5, max_value=15, value=5, step=1)
     collection_amount = st.number_input(
-        f"Total Payment Collection Amount ({currency})",
+        f"Total IRU Collection Amount ({currency})",
         min_value=0.0,
         value=0.0,
         step=1000.0,
@@ -144,14 +144,36 @@ elif commission_type == "IRU Arrangement":
     st.markdown("### Team Sharing")
     st.caption("Sales person = 70%, balance 30% shared equally among Design, Delivery and Procurement.")
 
+    # per-team breakdown including payout timing split (66.7% at collection, 33.3% after 13 months)
+    team_rows = []
+    for team, share in [
+        ("Sales team", 0.70),
+        ("Design team", 0.10),
+        ("Delivery team", 0.10),
+        ("Procurement team", 0.10),
+    ]:
+        team_total = total_commission * share
+        team_collection = team_total * 0.667
+        team_month13 = team_total * 0.333
+        team_rows.append(
+            [
+                team,
+                share * 100,
+                team_total,
+                team_collection,
+                team_month13,
+            ]
+        )
+
     split_df = pd.DataFrame(
-        [
-            ["Sales team", 70.0, total_commission * 0.70],
-            ["Design team", 10.0, total_commission * 0.10],
-            ["Delivery team", 10.0, total_commission * 0.10],
-            ["Procurement team", 10.0, total_commission * 0.10],
+        team_rows,
+        columns=[
+            "Team",
+            "Share %",
+            f"Total ({currency})",
+            f"At collection (66.7%) ({currency})",
+            f"After 13th month (33.3%) ({currency})",
         ],
-        columns=["Team", "Share %", f"Amount ({currency})"],
     )
     st.dataframe(split_df, use_container_width=True, hide_index=True)
 
@@ -174,7 +196,14 @@ else:
         st.write("**Offnet**: resources sourced from external or third-party network coverage.")
         st.write("**Onnet**: resources delivered through ARNET own or directly controlled network coverage.")
 
+    lease_mode = st.selectbox(
+        "Lease Mode",
+        ["New lease", "Renewal lease"],
+        help="New lease follows normal commission split. Renewal lease gets 30% of first month GP.",
+    )
+
     project_name = st.text_input("Project Name")
+    lease_term = st.slider("Fiber Lease Term (Years)", min_value=1, max_value=15, value=3, step=1)
     first_month_revenue = st.number_input(
         f"First Month Revenue ({currency})",
         min_value=0.0,
@@ -189,20 +218,37 @@ else:
     )
 
     first_month_gp = first_month_revenue - first_month_cost
-    annualised_first_month_gp = first_month_gp * 12
 
-    sales_amount = annualised_first_month_gp * 0.50
-    support_amount = annualised_first_month_gp * 0.10
-    total_commission = sales_amount + support_amount
+    if lease_term < 3:
+        st.warning("Fiber Lease commission is triggered only for term >= 3 years. No commission will be paid.")
+        sales_amount = 0.0
+        support_amount = 0.0
+        renewal_commission = 0.0
+        total_commission = 0.0
+    else:
+        if lease_mode == "New lease":
+            sales_amount = first_month_gp * 0.50
+            support_amount = first_month_gp * 0.10
+            renewal_commission = 0.0
+        else:  # Renewal lease
+            sales_amount = 0.0
+            support_amount = 0.0
+            renewal_commission = first_month_gp * 0.30
+
+        total_commission = sales_amount + support_amount + renewal_commission
 
     st.markdown("### Fiber Lease Result")
     c1, c2 = st.columns(2)
     c1.metric("First Month GP", f"{money(first_month_gp)} {currency}")
-    c2.metric("Annualised First Month GP", f"{money(annualised_first_month_gp)} {currency}")
+    c2.metric("Fiber Lease Term", f"{lease_term} years")
 
     st.write(f"**Project Name:** {project_name if project_name else '-'}")
-    st.write(f"**Total Sales Commission:** {money(sales_amount)} {currency}")
-    st.write(f"**Total Support Team Commission:** {money(support_amount)} {currency}")
+    if lease_term >= 3:
+        if lease_mode == "New lease":
+            st.write(f"**Total Sales Commission (50% of First Month GP):** {money(sales_amount)} {currency}")
+            st.write(f"**Total Support Team Commission (10% of First Month GP):** {money(support_amount)} {currency}")
+        else:
+            st.write(f"**Renewal Commission (30% of First Month GP):** {money(renewal_commission)} {currency}")
     st.write(f"**Total Commission Payout:** {money(total_commission)} {currency}")
 
     if lease_type == "Offnet":
@@ -210,16 +256,23 @@ else:
     else:
         support_group = "PM + Presales team + Design team"
 
+    split_rows = []
+    if lease_term >= 3:
+        if lease_mode == "New lease":
+            split_rows = [
+                ["Sales team", "50% of First Month GP", sales_amount],
+                [support_group, "10% of First Month GP", support_amount],
+            ]
+        else:
+            split_rows = [["Account owner", "30% of First Month GP (Renewal)", renewal_commission]]
+
     split_df = pd.DataFrame(
-        [
-            ["Sales team", "50% of Annualised First Month GP", sales_amount],
-            [support_group, "10% of Annualised First Month GP", support_amount],
-        ],
+        split_rows,
         columns=["Team / Group", "Rule", f"Amount ({currency})"],
     )
     st.dataframe(split_df, use_container_width=True, hide_index=True)
 
     st.info(
-        "Fiber Lease commission is based on annualised first month GP. "
-        "Sales receives 50%, and the support team grouping receives 10%."
+        "Fiber Lease commission is based on first month GP. "
+        "New lease: 50% sales + 10% support. Renewal lease: 30% to account owner (term >= 3 years)."
     )
