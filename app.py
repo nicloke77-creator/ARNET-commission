@@ -95,8 +95,8 @@ elif commission_type == "IRU Arrangement":
 
     project_name = st.text_input("Project Name")
     years = st.slider("IRU Term (Years)", min_value=5, max_value=15, value=5, step=1)
-    collection_amount = st.number_input(
-        f"Total IRU Collection Amount ({currency})",
+    otc_amount = st.number_input(
+        f"Total IRU OTC Amount ({currency})",
         min_value=0.0,
         value=0.0,
         step=1000.0,
@@ -106,7 +106,7 @@ elif commission_type == "IRU Arrangement":
     commission_rate = 1.50 + ((years - 5) / 10) * (2.60 - 1.50)
     commission_rate = round(commission_rate, 2)
 
-    total_commission = collection_amount * (commission_rate / 100)
+    total_commission = otc_amount * (commission_rate / 100)
     collection_payout = total_commission * 0.667
     month13_payout = total_commission * 0.333
 
@@ -133,7 +133,7 @@ elif commission_type == "IRU Arrangement":
 
     st.markdown("### IRU Result")
     c1, c2 = st.columns(2)
-    c1.metric("Total Collection Amount", f"{money(collection_amount)} {currency}")
+    c1.metric("Total OTC Amount", f"{money(otc_amount)} {currency}")
     c2.metric("Commission Rate", pct(commission_rate))
 
     st.write(f"**Project Name:** {project_name if project_name else '-'}")
