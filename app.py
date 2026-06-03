@@ -29,7 +29,7 @@ st.divider()
 
 st.info(
     "Sales & Marketing team is treated as one team. "
-    "Marketing team will only receive 15% from the original Sales team portion "
+    "Marketing team will only receive 10% from the original Sales team portion "
     "if Marketing Team Involvement is selected as Yes. "
     "If No, the full original Sales team portion remains with Sales team."
 )
@@ -63,7 +63,7 @@ if commission_type == "CAPEX Build / Infra Build":
         horizontal=True,
         help=(
             "Select Yes only if the sales is linked to marketing team effort. "
-            "If Yes, 15% will be allocated to Marketing team from the original Sales team portion."
+            "If Yes, 10% will be allocated to Marketing team from the original Sales team portion."
         ),
     )
 
@@ -94,14 +94,14 @@ if commission_type == "CAPEX Build / Infra Build":
         total_commission = gp * (commission_rate / 100)
         st.success(f"Commission triggered at {commission_rate:.2f}% of GP.")
 
-    # Original Sales & Marketing team allocation is 70%
+    # Original Sales team allocation is 70%
     # If Marketing Team Involvement = Yes:
-    # Sales team gets 55%, Marketing team gets 15%
+    # Sales team gets 60%, Marketing team gets 10%
     # If Marketing Team Involvement = No:
     # Sales team gets full 70%, Marketing team gets 0%
     if marketing_linked:
-        sales_share = 55.0
-        marketing_share = 15.0
+        sales_share = 60.0
+        marketing_share = 10.0
     else:
         sales_share = 70.0
         marketing_share = 0.0
@@ -115,8 +115,8 @@ if commission_type == "CAPEX Build / Infra Build":
     if marketing_linked:
         st.info(
             "Marketing Team Involvement: Yes. "
-            "Marketing team receives 15% from the original Sales team portion. "
-            "Sales team receives the remaining 55%."
+            "Marketing team receives 10% from the original Sales team portion. "
+            "Sales team receives the remaining 60%."
         )
     else:
         st.info(
@@ -169,7 +169,7 @@ elif commission_type == "IRU Arrangement":
         horizontal=True,
         help=(
             "Select Yes only if the sales is linked to marketing team effort. "
-            "If Yes, 15% will be allocated to Marketing team from the original Sales team portion."
+            "If Yes, 10% will be allocated to Marketing team from the original Sales team portion."
         ),
     )
 
@@ -226,18 +226,18 @@ elif commission_type == "IRU Arrangement":
     st.caption(
         "Sales & Marketing team is one team. "
         "Original Sales team portion is 70%. "
-        "If Marketing Team Involvement is Yes, Sales team gets 55% and Marketing team gets 15%. "
+        "If Marketing Team Involvement is Yes, Sales team gets 60% and Marketing team gets 10%. "
         "Balance 30% is shared equally among Design, Delivery and Procurement."
     )
 
-    # Original Sales & Marketing team allocation is 70%
+    # Original Sales team allocation is 70%
     # If Marketing Team Involvement = Yes:
-    # Sales team gets 55%, Marketing team gets 15%
+    # Sales team gets 60%, Marketing team gets 10%
     # If Marketing Team Involvement = No:
     # Sales team gets full 70%, Marketing team gets 0%
     if marketing_linked:
-        sales_share = 0.55
-        marketing_share = 0.15
+        sales_share = 0.60
+        marketing_share = 0.10
     else:
         sales_share = 0.70
         marketing_share = 0.00
@@ -281,8 +281,8 @@ elif commission_type == "IRU Arrangement":
     if marketing_linked:
         st.info(
             "Marketing Team Involvement: Yes. "
-            "Marketing team receives 15% from the original Sales team portion. "
-            "Sales team receives the remaining 55%."
+            "Marketing team receives 10% from the original Sales team portion. "
+            "Sales team receives the remaining 60%."
         )
     else:
         st.info(
@@ -347,7 +347,7 @@ else:
         horizontal=True,
         help=(
             "Select Yes only if the sales is linked to marketing team effort. "
-            "For Fiber Lease New lease, Marketing will receive 15% of first month GP "
+            "For Fiber Lease New lease, Marketing will receive 10% of first month GP "
             "from the original Sales team portion."
         ),
     )
@@ -369,12 +369,12 @@ else:
         if lease_mode == "New lease":
             # Original Sales team portion is 50% of First Month GP.
             # If Marketing Team Involvement = Yes:
-            # Sales team gets 35%, Marketing team gets 15%
+            # Sales team gets 40%, Marketing team gets 10%
             # If Marketing Team Involvement = No:
             # Sales team gets full 50%, Marketing team gets 0%
             if marketing_linked:
-                sales_amount = first_month_gp * 0.35
-                marketing_amount = first_month_gp * 0.15
+                sales_amount = first_month_gp * 0.40
+                marketing_amount = first_month_gp * 0.10
             else:
                 sales_amount = first_month_gp * 0.50
                 marketing_amount = 0.0
@@ -408,8 +408,8 @@ else:
     if lease_term >= 3:
         if lease_mode == "New lease":
             if marketing_linked:
-                st.write(f"**Sales Team Commission (35% of First Month GP):** {money(sales_amount)} {currency}")
-                st.write(f"**Marketing Team Commission (15% of First Month GP):** {money(marketing_amount)} {currency}")
+                st.write(f"**Sales Team Commission (40% of First Month GP):** {money(sales_amount)} {currency}")
+                st.write(f"**Marketing Team Commission (10% of First Month GP):** {money(marketing_amount)} {currency}")
             else:
                 st.write(f"**Sales Team Commission (50% of First Month GP):** {money(sales_amount)} {currency}")
                 st.write(f"**Marketing Team Commission:** {money(marketing_amount)} {currency}")
@@ -432,8 +432,8 @@ else:
         if lease_mode == "New lease":
             if marketing_linked:
                 split_rows = [
-                    ["Sales team", "35% of First Month GP", sales_amount],
-                    ["Marketing team", "15% of First Month GP", marketing_amount],
+                    ["Sales team", "40% of First Month GP", sales_amount],
+                    ["Marketing team", "10% of First Month GP", marketing_amount],
                     [support_group, "10% of First Month GP", support_amount],
                 ]
             else:
@@ -458,9 +458,9 @@ else:
         if marketing_linked:
             st.info(
                 "Marketing Team Involvement: Yes. "
-                "For Fiber Lease New lease, Marketing team receives 15% of First Month GP "
+                "For Fiber Lease New lease, Marketing team receives 10% of First Month GP "
                 "from the original Sales team portion. "
-                "Sales team receives the remaining 35%. "
+                "Sales team receives the remaining 40%. "
                 "Support team remains 10%."
             )
         else:
